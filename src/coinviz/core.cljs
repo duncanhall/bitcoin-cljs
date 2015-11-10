@@ -1,5 +1,8 @@
 (ns ^:figwheel-always coinviz.core
   (:require
+   [coinviz.transaction :as tx]
+   [coinviz.connection :as cx]
+   [coinviz.ui :as ui]
    [reagent.core :as reagent :refer [atom]]
    [goog.dom :as dom]
    [chord.client :refer [ws-ch]]
@@ -9,68 +12,26 @@
 
 (enable-console-print!)
 
-(defonce app-state (atom {
-                          :channel nil
-                          :connected false
-                          :transactions []}))
+(defonce transactions (atom () ))
+(defonce app-state (atom {:channel nil  :connected false :connect! #() :disconnect! #()}))
 
-(defn add-transaction! [tx]
-  (when tx
-    (let [dx (-> tx
-                 (get "x")
-                 (select-keys ["inputs" "out"]))
-          ix (->> (get dx "inputs")
-                  (map #(get-in % ["prev_out" "value"]))
-                  (reduce +)) 
-          ox (->> (get dx "out")
-                  (map #(get % "value"))
-                  (reduce +) )]
-      (swap! app-state assoc  :transactions {:hash (get-in tx ["x" "hash"]) :i ix :o ox}))))
-
-(defn subscribe [channel]
-  (go-loop []
-    (let [{:keys [message error] :as msg} (<! channel)]
-      (add-transaction!  message)
-      (when message (recur))))
-  (go
-    (>! channel {:op "unconfirmed_sub"})))
+(defn add-transaction! [t]
+  (when t
+    (swap! transactions conj (tx/to-total-io t))))
 
 (defn connect! []
-  (go
-    (let [{:keys [ws-channel error]} (<! (ws-ch "wss://ws.blockchain.info/inv" {:format :json}))]
-      (if error
-        (println (pr-str error))
-        ((swap! app-state assoc
-                :channel ws-channel
-                :connected true)
-         (subscribe ws-channel))))))
+  (cx/connect! app-state add-transaction!))
 
 (defn disconnect! []
-  (when (:channel @app-state)
-    (go
-      (close! (:channel @app-state))
-      (swap! app-state assoc :channel nil )
-      (swap! app-state assoc :connected false))))
+  (cx/disconnect! app-state))
 
-(defn controls []
-  (let [connected (:connected @app-state)]
-    [:div.controls
-     [:input {
-              :type "button"
-              :value (if connected "Disconnect" "Connect")
-              :on-click (if connected disconnect! connect!)}]]))
+(defn on-js-reload []
+  (disconnect!))
 
-(defn output []
-  [:div (str(:transactions @app-state))])
+(swap! app-state assoc :connect! connect!)
+(swap! app-state assoc :disconnect! disconnect!)
 
-(defn app-container []
-  [:div
-   [:h1 "Realtime Blockchain"]
-   [controls]
-   [:br]
-   [output]])
+(ui/render app-state transactions)
 
-(reagent/render-component [app-container]  (dom/getElement "app"))
 
-(defn on-js-reload []  (disconnect!))
 
