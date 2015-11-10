@@ -2,7 +2,7 @@
 
 (def hash-precision 11)
 
-(defn- trim-hash [raw]
+(defn trim-hash [raw]
   (subs raw 0 hash-precision))
 
 (defn to-total-io [tx]

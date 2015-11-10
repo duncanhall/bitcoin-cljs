@@ -3,21 +3,20 @@
    [coinviz.transaction :as tx]
    [coinviz.connection :as cx]
    [coinviz.ui :as ui]
-   [reagent.core :as reagent :refer [atom]]
-   [goog.dom :as dom]
-   [chord.client :refer [ws-ch]]
-   [cljs.core.async :refer [<! >! put! close! chan]])
-  (:require-macros
-   [cljs.core.async.macros :refer [go go-loop]]))
+   [reagent.core :refer [atom]]))
 
 (enable-console-print!)
 
-(defonce transactions (atom () ))
-(defonce app-state (atom {:channel nil  :connected false :connect! #() :disconnect! #()}))
+(defonce app-state (atom {
+                          :channel nil
+                          :connected false
+                          :transactions '()
+                          :connect! #()
+                          :disconnect! #()}))
 
 (defn add-transaction! [t]
   (when t
-    (swap! transactions conj (tx/to-total-io t))))
+    (swap! app-state update-in [:transactions] conj (tx/to-total-io t))))
 
 (defn connect! []
   (cx/connect! app-state add-transaction!))
@@ -31,7 +30,5 @@
 (swap! app-state assoc :connect! connect!)
 (swap! app-state assoc :disconnect! disconnect!)
 
-(ui/render app-state transactions)
-
-
+(ui/render app-state)
 

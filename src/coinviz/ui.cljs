@@ -11,16 +11,16 @@
               :value (if connected "Disconnect" "Connect")
               :on-click (if connected (:disconnect! @app-state) (:connect! @app-state))}]]))
 
-(defn output [transactions]
-  [:div (str @transactions)])
+(defn output [app-state]
+  [:div (str (:transactions @app-state))])
 
-(defn app-container [app-state transactions]
+(defn app-container [app-state]
   [:div
    [:h1 "Realtime Bitcoin Info"]
    [controls app-state]
    [:br]
-   [output transactions]])
+   [output app-state]])
 
-(defn render [app-state transactions]
-  (reagent/render-component [app-container app-state transactions] (dom/getElement "app")))
+(defn render [app-state]
+  (reagent/render-component [app-container app-state] (dom/getElement "app")))
 
