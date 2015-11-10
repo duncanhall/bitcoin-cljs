@@ -25,7 +25,7 @@
           ox (->> (get dx "out")
                   (map #(get % "value"))
                   (reduce +) )]
-      (println (get-in tx ["x" "hash"])  [ ix ox]  ))))
+      (swap! app-state assoc  :transactions {:hash (get-in tx ["x" "hash"]) :i ix :o ox}))))
 
 (defn subscribe [channel]
   (go-loop []
@@ -46,27 +46,31 @@
          (subscribe ws-channel))))))
 
 (defn disconnect! []
-  (go
-    (close! (:channel @app-state))
-    (swap! app-state assoc :connected false)))
+  (when (:channel @app-state)
+    (go
+      (close! (:channel @app-state))
+      (swap! app-state assoc :channel nil )
+      (swap! app-state assoc :connected false))))
 
 (defn controls []
   (let [connected (:connected @app-state)]
     [:div.controls
      [:input {
-            :type "button"
-            :value (if connected "Disconnect" "Connect")
-            :on-click (if connected disconnect! connect!)}]]))
+              :type "button"
+              :value (if connected "Disconnect" "Connect")
+              :on-click (if connected disconnect! connect!)}]]))
+
+(defn output []
+  [:div (str(:transactions @app-state))])
 
 (defn app-container []
   [:div
    [:h1 "Realtime Blockchain"]
-   [controls]])
+   [controls]
+   [:br]
+   [output]])
 
 (reagent/render-component [app-container]  (dom/getElement "app"))
 
-(defn on-js-reload []
-  (println "Page reloaded")
-  (swap! app-state assoc :connected false))
-
+(defn on-js-reload []  (disconnect!))
 
