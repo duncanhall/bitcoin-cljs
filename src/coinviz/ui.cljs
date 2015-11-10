@@ -12,7 +12,10 @@
               :on-click (if connected (:disconnect! @app-state) (:connect! @app-state))}]]))
 
 (defn output [app-state]
-  [:div (str (:transactions @app-state))])
+  [:div
+   [:ul
+    (for [t (:transactions @app-state)] ^{:key t}
+      [:li (str t)])]])
 
 (defn app-container [app-state]
   [:div
