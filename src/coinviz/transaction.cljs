@@ -6,7 +6,7 @@
   (subs raw 0 hash-precision))
 
 (defn to-total-io [tx]
-  "Converts a transaction into HashMap of values {:hash :i (total input) :o (total output)}"
+  "Converts a transaction into HashMap of values {:h :i (total input) :o (total output)}"
   (let [dx (-> tx
                (get "x")
                (select-keys ["inputs" "out"]))
@@ -16,5 +16,5 @@
         ox (->> (get dx "out")
                 (map #(get % "value"))
                 (reduce +) )]
-    {:hash (trim-hash (get-in tx ["x" "hash"])) :i ix :o ox}))
+    {:h (trim-hash (get-in tx ["x" "hash"])) :i ix :o ox}))
 
