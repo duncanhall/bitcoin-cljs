@@ -16,7 +16,7 @@
 
 (defn add-transaction! [t]
   (when t
-    (swap! app-state update-in [:transactions] conj (tx/to-total-io t))))
+    (swap! app-state update-in [:transactions] conj (tx/total-io t))))
 
 (defn connect! []
   (cx/connect! app-state add-transaction!))
