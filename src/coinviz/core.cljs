@@ -7,16 +7,20 @@
 
 (enable-console-print!)
 
+(defonce formatters {"hash" tx/get-hash "count" tx/count-io "total" tx/total-io})
+
 (defonce app-state (atom {
                           :channel nil
                           :connected false
                           :transactions '()
+                          :output-fmt "hash"
                           :connect! #()
                           :disconnect! #()}))
 
 (defn add-transaction! [t]
   (when t
-    (swap! app-state update-in [:transactions] conj (tx/total-io t))))
+    (swap! app-state update-in [:transactions] conj
+           ((get formatters (:output-fmt @app-state)) t))))
 
 (defn connect! []
   (cx/connect! app-state add-transaction!))
