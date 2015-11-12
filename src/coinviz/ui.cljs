@@ -1,5 +1,6 @@
 (ns coinviz.ui
   (:require
+   [reagent.ratom :refer [reaction]]
    [reagent.core :as reagent]
    [goog.dom :as dom]))
 
@@ -17,20 +18,22 @@
    [output-option app-state "total" "Total"]])
 
 (defn controls [app-state]
-  (let [connected (:connected @app-state)]
+  (let [connected (reaction (:connected @app-state))
+        cx (reaction (:connect! @app-state))
+        dx (reaction (:disconnect! @app-state))]
     [:div.controls
      [output-select app-state]
      [:br]
      [:input {
               :type "button"
-              :value (if connected "Disconnect" "Connect")
-              :on-click (if connected (:disconnect! @app-state) (:connect! @app-state))}]]))
+              :value (if @connected "Disconnect" "Connect")
+              :on-click (if @connected (@dx) (@cx))}]]))
 
 (defn output [app-state]
-  (let [txs (:transactions @app-state)]
+  (let [txs (reaction (:transactions @app-state))]
   [:div
    [:ul
-    (for [t txs] ^{:key t}
+    (for [t @txs] ^{:key t}
       [:li (str t)])]]))
 
 (defn app-container [app-state]
