@@ -2,3 +2,15 @@
 * {
     font-family: "Arial"
 }
+
+li {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    line-height: 22px;
+}
+
+ul {
+    margin: 0;
+    padding: 0;
+}

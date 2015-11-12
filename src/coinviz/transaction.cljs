@@ -1,6 +1,6 @@
 (ns coinviz.transaction)
 
-(def hash-precision 11)
+(def hash-precision 64)
 
 (defn get-hash [tx]
   (-> tx
@@ -31,3 +31,6 @@
                 (map #(get % "value"))
                 (count) )]
     {:h (get-hash tx) :i ix :o ox}))
+
+(defn get-size [tx]
+  {:h (get-hash tx) :s (get-in tx ["x" "size"])})

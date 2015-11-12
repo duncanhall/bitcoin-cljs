@@ -12,6 +12,7 @@
 (defn output-select [app-state]
   [:div
    [output-option app-state "hash" "Hash"]
+   [output-option app-state "size" "Size"]
    [output-option app-state "count" "Count"]
    [output-option app-state "total" "Total"]])
 
@@ -26,10 +27,11 @@
               :on-click (if connected (:disconnect! @app-state) (:connect! @app-state))}]]))
 
 (defn output [app-state]
+  (let [txs (:transactions @app-state)]
   [:div
    [:ul
-    (for [t (:transactions @app-state)] ^{:key t}
-      [:li (str t)])]])
+    (for [t txs] ^{:key t}
+      [:li (str t)])]]))
 
 (defn app-container [app-state]
   [:div
