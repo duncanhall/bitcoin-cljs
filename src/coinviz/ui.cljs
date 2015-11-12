@@ -18,6 +18,7 @@
    [output-option app-state "total" "Total"]])
 
 (defn controls [app-state]
+  (fn []
   (let [connected (reaction (:connected @app-state))
         cx (reaction (:connect! @app-state))
         dx (reaction (:disconnect! @app-state))]
@@ -27,21 +28,23 @@
      [:input {
               :type "button"
               :value (if @connected "Disconnect" "Connect")
-              :on-click (if @connected (@dx) (@cx))}]]))
+              :on-click (if @connected (@dx) (@cx))}]])))
 
 (defn output [app-state]
+  (fn []
   (let [txs (reaction (:transactions @app-state))]
   [:div
    [:ul
     (for [t @txs] ^{:key t}
-      [:li (str t)])]]))
+      [:li (str t)])]])))
 
 (defn app-container [app-state]
+  (fn []
   [:div
    [:h1 "Realtime Bitcoin Info"]
    [controls app-state]
    [:br]
-   [output app-state]])
+   [output app-state]]))
 
 (defn render [app-state]
   (reagent/render-component [app-container app-state] (dom/getElement "app")))
