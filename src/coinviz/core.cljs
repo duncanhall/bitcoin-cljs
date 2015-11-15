@@ -12,22 +12,22 @@
 (defonce app-state (atom {
                           :channel nil
                           :connected false
-                          :transactions '()
+                          :transactions []
                           :output-fmt "hash"
                           :connect! #()
                           :disconnect! #()}))
 
-(defn add-transaction! [t]
+(defn add-transaction! [x]
+  (swap! app-state
+         (fn [s]
+           (update s :transactions #(conj (if (>= (count %) 20) (subvec % 1) %) x)))))
+
+(defn handle-input! [t]
   (when t
-    (let [
-          ts (:transactions @app-state)
-          ts (if (< 20 (count ts)) (take 20 ts) ts)]
-      (swap! app-state assoc :transactions
-             (conj ts
-                   ((get formatters (:output-fmt @app-state)) t))))))
+    (add-transaction! ((get formatters (:output-fmt @app-state)) t))))
 
 (defn connect! []
-  (cx/connect! app-state add-transaction!))
+  (cx/connect! app-state handle-input!))
 
 (defn disconnect! []
   (cx/disconnect! app-state))
