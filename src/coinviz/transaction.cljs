@@ -1,6 +1,6 @@
 (ns coinviz.transaction)
 
-(def hash-precision 64)
+(def hash-precision 10)
 
 (defn get-hash [tx]
   (-> tx
@@ -33,4 +33,13 @@
     {:h (get-hash tx) :i ix :o ox}))
 
 (defn get-size [tx]
-  {:h (get-hash tx) :s (get-in tx ["x" "size"])})
+  (let [s (get-in tx ["x" "size"])
+        s (/ s 20)]
+    (.ceil js/Math s)))
+
+(defn get-size-graph [data]
+  (let [g5 (map #(.ceil js/Math (/ % 10)) data)]
+    (reduce #(assoc %1 %2 (inc (%1 %2 0))) {} g5)))
+
+(defn update-size-graph [app-state ts]
+  (swap! app-state update-in [:graph ts] inc))

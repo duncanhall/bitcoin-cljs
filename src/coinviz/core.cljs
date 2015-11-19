@@ -14,17 +14,19 @@
                           :connected false
                           :transactions []
                           :output-fmt "hash"
+                          :graph '{}
                           :connect! #()
                           :disconnect! #()}))
 
 (defn add-transaction! [x]
   (swap! app-state
          (fn [s]
-           (update s :transactions #(conj (if (>= (count %) 20) (subvec % 1) %) x)))))
+           (update s :transactions #(conj (if (>= (count %) 50) (subvec % 1) %) x)))))
 
 (defn handle-input! [t]
   (when t
-    (add-transaction! ((get formatters (:output-fmt @app-state)) t))))
+    (->> (tx/get-size t)
+    (tx/update-size-graph app-state))))
 
 (defn connect! []
   (cx/connect! app-state handle-input!))

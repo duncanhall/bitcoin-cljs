@@ -1,5 +1,5 @@
 (defproject coinviz "0.1.0-SNAPSHOT"
-  :description "FIXME: write this!"
+  :description "Realtime bitcoin visualization"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -8,6 +8,8 @@
                  [org.clojure/clojurescript "1.7.122"]
                  [org.clojure/core.async "0.2.371"]
                  [reagent "0.5.0"]
+                 [thi.ng/geom "0.0.908"]
+                 [thi.ng/strf "0.2.1"]
                  [com.cognitect/transit-cljs "0.8.225"]
                  [jarohen/chord "0.7.0-SNAPSHOT"]]
 
