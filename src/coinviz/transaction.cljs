@@ -34,7 +34,7 @@
 
 (defn get-size [tx]
   (let [s (get-in tx ["x" "size"])
-        s (/ s 20)]
+        s (/ s 30)]
     (.ceil js/Math s)))
 
 (defn get-size-graph [data]
